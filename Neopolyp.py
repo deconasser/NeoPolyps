@@ -15,6 +15,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.optim import lr_scheduler
 from torch import Tensor
+from UNetDataCLass import UNetDataClass
 import segmentation_models_pytorch as smp
 
 from torch.utils.data import Dataset, DataLoader, random_split
@@ -44,6 +45,9 @@ display_step = 50
 checkpoint_path = '/teamspace/studios/this_studio/NeoPolyps/checkpoints'
 pretrained_path = "/teamspace/studios/this_studio/NeoPolyps/checkpoints"
 
+images_path = "/teamspace/studios/this_studio/NeoPolyps/data/train/"
+masks_path =  "/teamspace/studios/this_studio/NeoPolyps/data/train_gt/"
+
 # Initialize lists to keep track of loss and accuracy
 loss_epoch_array = []
 train_accuracy = []
@@ -51,3 +55,4 @@ test_accuracy = []
 valid_accuracy = []
 
 transform = Compose([Resize((512, 512), interpolation=InterpolationMode.BILINEAR), PILToTensor()])
+unet_dataset = UNetDataClass(images_path, masks_path, transform)
