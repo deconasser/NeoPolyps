@@ -49,3 +49,5 @@ loss_epoch_array = []
 train_accuracy = []
 test_accuracy = []
 valid_accuracy = []
+
+transform = Compose([Resize((512, 512), interpolation=InterpolationMode.BILINEAR), PILToTensor()])
