@@ -1,9 +1,7 @@
-from torchsummary import summary
-from torchgeometry.losses import one_hot
 import os
+import albumentations as A
 import pandas as pd
 import numpy as np
-from PIL import Image
 import cv2
 import time
 import imageio
@@ -13,15 +11,17 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+import segmentation_models_pytorch as smp
 from torch.optim import lr_scheduler
 from torch import Tensor
 from UNetDataCLass import UNetDataClass
-import segmentation_models_pytorch as smp
-
+from SegDataClass import SegDataClass
+from PIL import Image
 from torch.utils.data import Dataset, DataLoader, random_split
 from torchvision.transforms import Resize, PILToTensor, ToPILImage, Compose, InterpolationMode
 from collections import OrderedDict
-import albumentations as A
+from torchsummary import summary
+from torchgeometry.losses import one_hot
 from albumentations import (
     RandomRotate90,
     Flip,
@@ -83,3 +83,8 @@ augmentation = A.Compose([
     RandomGamma (gamma_limit=(70, 130), eps=None, always_apply=False, p=0.2),
     RGBShift(p=0.3, r_shift_limit=10, g_shift_limit=10, b_shift_limit=10),
 ])
+
+# transform = transforms.ToTensor()
+aug_dataset = SegDataClass(images_path, masks_path, transform=transform, augmentation=augmentation)
+x, y = aug_dataset.__getitem__(20)
+print(x, y)
