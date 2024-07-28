@@ -1,7 +1,8 @@
-from torch.utils.data import Dataset, DataLoader
 import os
-from PIL import Image
 import torch
+
+from PIL import Image
+from torch.utils.data import Dataset, DataLoader
 
 class UNetDataClass(Dataset):
     def __init__(self, images_path, masks_path, transform):
