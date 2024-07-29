@@ -8,7 +8,7 @@ from torchgeometry.losses import one_hot
 class CEDiceLoss(nn.Module):
     def __init__(self, weights) -> None:
         super(CEDiceLoss, self).__init__()
-        self.eps: float = 1e-6
+        self.eps: float = 1e-5
         self.weights: torch.Tensor = weights
 
     def forward(

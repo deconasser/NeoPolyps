@@ -24,25 +24,10 @@ from collections import OrderedDict
 from torchsummary import summary
 from torchgeometry.losses import one_hot
 from torch.utils.data import ConcatDataset
-from albumentations import (
-    RandomRotate90,
-    Flip,
-    Transpose,
-    ElasticTransform,
-    GridDistortion,
-    OpticalDistortion,
-    RandomBrightnessContrast,
-    HorizontalFlip,
-    VerticalFlip,
-    RandomGamma,
-    RGBShift,
-)
-torch.set_printoptions(profile="default")
 
 
 def weights_init(model):
     if isinstance(model, nn.Linear):
-        # Xavier Distribution
         torch.nn.init.xavier_uniform_(model.weight)
 
 def save_model(model, optimizer, path):
@@ -57,6 +42,7 @@ def load_model(model, optimizer, path):
     model.load_state_dict(checkpoint["model"])
     optimizer.load_state_dict(checkpoint['optimizer'])
     return model, optimizer
+    
 # Train function for each epoch
 def train(train_dataloader, valid_dataloader,learing_rate_scheduler, epoch, display_step):
     print(f"Start epoch #{epoch+1}, learning rate for this epoch: {learing_rate_scheduler.get_last_lr()}")
@@ -104,19 +90,6 @@ def train(train_dataloader, valid_dataloader,learing_rate_scheduler, epoch, disp
 
     return train_loss_epoch , test_loss_epoch
 
-# Test function
-def test(dataloader):
-    test_loss = 0
-    correct = 0
-    with torch.no_grad():
-        for i, (data, targets) in enumerate(dataloader):
-            data, targets = data.to(device), targets.to(device)
-            outputs = model(data)
-            _, pred = torch.max(outputs, 1)
-            test_loss += targets.size(0)
-            correct += torch.sum(pred == targets).item()
-    return 100.0 * correct / test_loss
-
 device = torch.device("cuda" if torch.cuda.is_available () else "cpu")
 print(device)
 
@@ -131,7 +104,7 @@ model = smp.UnetPlusPlus(
 
 num_classes = 3
 epochs = 50
-learning_rate = 1e-4
+learning_rate = 1e-3
 batch_size = 8
 display_step = 50
 
@@ -152,36 +125,28 @@ transform = Compose([Resize((512, 512), interpolation=InterpolationMode.BILINEAR
 
 unet_dataset = UNetDataClass(images_path, masks_path, transform)
 
-train_size = 0.9
-valid_size = 0.1
-torch.manual_seed(42)
-train_set, valid_set = random_split(unet_dataset, [int(train_size * len(unet_dataset)), int(valid_size * len(unet_dataset))])
-
 augmentation = A.Compose([
-    HorizontalFlip(p=0.5),
-    VerticalFlip(p=0.5),
-    RandomGamma (gamma_limit=(70, 130), eps=None, always_apply=False, p=0.2),
-    RGBShift(p=0.3, r_shift_limit=10, g_shift_limit=10, b_shift_limit=10),
+    A.HorizontalFlip(p=0.5),
+    A.VerticalFlip(p=0.5),
+    A.RandomBrightnessContrast(p=0.2),
+    A.ShiftScaleRotate(scale_limit=0.2, rotate_limit=20, shift_limit=0.2, p=0.5)
 ])
 
 # transform = transforms.ToTensor()
 aug_dataset = SegDataClass(images_path, masks_path, transform=transform, augmentation=augmentation)
-
+combined_dataset = ConcatDataset([aug_dataset , unet_dataset])
+train_size = 0.8
+valid_size = 0.2
 torch.manual_seed(42)
-train_aug_set, valid_aug_set = random_split(aug_dataset,
-                                    [int(train_size * len(aug_dataset)) ,
-                                     int(valid_size * len(aug_dataset))])
+train_set, valid_set = random_split(combined_dataset,
+                                    [int(train_size * len(combined_dataset)) ,
+                                     int(valid_size * len(combined_dataset))])
 
-
-combined_dataset = ConcatDataset([train_aug_set, train_set])
-combined_valid_dataset = ConcatDataset([valid_aug_set, valid_set])
-train_dataloader = DataLoader(combined_dataset, batch_size=batch_size, shuffle=True)
-valid_dataloader = DataLoader(combined_valid_dataset, batch_size=batch_size, shuffle=True)
-
+train_dataloader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
+valid_dataloader = DataLoader(valid_set, batch_size=batch_size, shuffle=True)
 
 try:
     checkpoint = torch.load(pretrained_path)
-
     new_state_dict = OrderedDict()
     for k, v in checkpoint['model'].items():
         name = k[7:] # remove `module.`
@@ -207,8 +172,9 @@ except:
     pass
 
 # Learning rate scheduler
-learing_rate_scheduler = lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.6)
+learing_rate_scheduler = lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.8)
 
+save_model(model, optimizer, checkpoint_path)
 
 #Train
 train_loss_array = []
