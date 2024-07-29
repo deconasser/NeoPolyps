@@ -51,3 +51,4 @@ where \( y_i \) is the true label and \( p(y_i) \) is the predicted probability.
 ![image](https://github.com/user-attachments/assets/ef0e4d50-d936-4083-9fd8-587f59a2f9e6)
 
 ## Testing phase
+![image](https://github.com/user-attachments/assets/8b18e49d-1f20-42d7-91c5-e47aed54d108)
