@@ -1,7 +1,7 @@
 <div align="center">
   <p>
-    <a href="https://github.com/ultralytics/assets/releases/tag/v8.2.0" target="_blank">
-      <img width="100%" src="https://production-media.paperswithcode.com/datasets/59a87a08-a2ae-4f94-8cd5-a8c4774f97f4.png" alt="YOLO Vision banner"></a>
+    <a href="" target="_blank">
+      <img width="100%" src="https://production-media.paperswithcode.com/datasets/59a87a08-a2ae-4f94-8cd5-a8c4774f97f4.png" alt=""></a>
   </p>
 <br>
 </div>
