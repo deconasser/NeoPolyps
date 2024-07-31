@@ -47,7 +47,6 @@ The Cross Entropy Loss is used to measure the performance of a classification mo
 where \( y_i \) is the true label and \( p(y_i) \) is the predicted probability.
 
 ## Training phase
-![image](https://github.com/user-attachments/assets/f3b3d2e1-473b-422c-abe4-eb88d68fdedc)
 ![image](https://github.com/user-attachments/assets/ef0e4d50-d936-4083-9fd8-587f59a2f9e6)
 
 ## Testing phase
